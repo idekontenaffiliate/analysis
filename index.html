@@ -1,490 +1,58 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  Users, 
-  Baby, 
-  Calendar, 
-  Search, 
-  X, 
-  CheckCircle2, 
-  XCircle, 
-  Droplets,
-  Info,
-  MapPin,
-  Clock,
-  ArrowLeft,
-  Loader2,
-  AlertCircle
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Jemaat</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Direktori Jemaat & Kegiatan</h1>
+        <nav>
+            <button onclick="showSection('jemaat')" class="active" id="btn-jemaat">Data Jemaat</button>
+            <button onclick="showSection('kegiatan')" id="btn-kegiatan">Kegiatan Ibadah</button>
+        </nav>
+    </header>
 
-// ============================================================================
-// KONFIGURASI GOOGLE SPREADSHEET
-// ============================================================================
-// Masukkan link "Publish to web" (format CSV) dari Google Sheet Anda di sini.
-// Biarkan kosong ('') jika ingin melihat data simulasi otomatis.
-const GOOGLE_SHEET_CSV_URL = ''; 
-// Contoh format URL jika sudah di-publish:
-// const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ.../pub?output=csv';
+    <main>
+        <section id="jemaat-section">
+            <div class="filter-bar">
+                <input type="text" id="searchInput" placeholder="Cari nama jemaat..." onkeyup="filterJemaat()">
+                <select id="kategoriFilter" onchange="filterJemaat()">
+                    <option value="Semua">Semua Kategori</option>
+                    <option value="Kaum Saleh">Kaum Saleh</option>
+                    <option value="Pemuda">Pemuda</option>
+                    <option value="Remaja">Remaja</option>
+                    <option value="Anak">Anak-anak</option>
+                </select>
+            </div>
+            <div id="jemaat-grid" class="grid-container">
+                <div class="loading">Memuat data dari Google Sheets...</div>
+            </div>
+        </section>
 
-// Format Kolom di Google Sheet HARUS berurutan atau bernama (baris pertama):
-// Nama, Kategori, Gender, Umur, Gugus, Baptis
-// - Kategori: isi dengan "Dewasa" atau "Anak"
-// - Gender: isi dengan "L" atau "P"
-// - Gugus: isi dengan "Ya" atau "Tidak"
-// - Baptis: isi dengan Tanggal (misal: "2020-01-01") atau "Belum"
-// ============================================================================
+        <section id="kegiatan-section" style="display: none;">
+            <div id="kegiatan-grid" class="grid-container">
+                </div>
+        </section>
+    </main>
 
-const activitiesData = [
-  {
-    id: 1,
-    title: 'Ibadah Raya Minggu',
-    image: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=800&q=80',
-    description: 'Ibadah raya utama yang diadakan setiap hari Minggu untuk seluruh jemaat.',
-    purpose: 'Memfasilitasi persekutuan jemaat dalam memuji, menyembah, dan mendengarkan Firman Tuhan bersama-sama.',
-    worshipPurpose: 'Penyembahan Korporat & Pembangunan Iman',
-    time: 'Setiap Minggu, 09:00 WIB',
-    location: 'Ruang Ibadah Utama',
-    pic: { name: 'Pdt. Andreas Wibowo', photo: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Andreas&backgroundColor=c0aede' }
-  },
-  {
-    id: 2,
-    title: 'Sekolah Minggu Ceria',
-    image: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&q=80',
-    description: 'Kegiatan ibadah dan belajar khusus untuk anak-anak usia 1-15 tahun.',
-    purpose: 'Mengenalkan nilai-nilai Kristiani dan kasih Tuhan Yesus sejak dini.',
-    worshipPurpose: 'Pembinaan Iman Anak',
-    time: 'Setiap Minggu, 09:00 WIB',
-    location: 'Gedung Sekolah Minggu',
-    pic: { name: 'Kak Sisca Patricia', photo: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Sisca&backgroundColor=ffdfbf' }
-  },
-  {
-    id: 3,
-    title: 'Persekutuan Doa Gugus',
-    image: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&q=80',
-    description: 'Pertemuan kelompok kecil (sel) di rumah-rumah jemaat untuk berbagi dan berdoa.',
-    purpose: 'Membangun keintiman antar jemaat, saling menopang dalam doa.',
-    worshipPurpose: 'Pemuridan & Penggembalaan Personal',
-    time: 'Setiap Rabu, 19:00 WIB',
-    location: 'Rumah Jemaat (Bergiliran)',
-    pic: { name: 'Bpk. Handoko', photo: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Handoko&backgroundColor=b6e3f4' }
-  }
-];
-
-// Fallback Generator jika URL CSV Kosong
-const generateMockMembers = () => {
-  const members = [];
-  const firstNamesL = ['Budi', 'Agus', 'Joko', 'Wahyu', 'Andi', 'Hadi', 'Iwan', 'Eko', 'Arief', 'Hendra', 'Rudi'];
-  const firstNamesP = ['Siti', 'Sri', 'Rini', 'Rina', 'Nina', 'Dewi', 'Lia', 'Maya', 'Sari'];
-  const lastNames = ['Setiawan', 'Hidayat', 'Saputra', 'Wijaya', 'Kusuma', 'Pratama', 'Santoso'];
-
-  for (let i = 1; i <= 250; i++) {
-    const isDewasa = i <= 200;
-    const isLaki = Math.random() > 0.5;
-    const fNames = isLaki ? firstNamesL : firstNamesP;
-    const fName = fNames[Math.floor(Math.random() * fNames.length)];
-    const lName = lastNames[Math.floor(Math.random() * lastNames.length)];
-    
-    members.push({
-      id: `M${i}`,
-      name: `${fName} ${lName}`,
-      type: isDewasa ? 'adult' : 'child',
-      gender: isLaki ? 'L' : 'P',
-      age: isDewasa ? Math.floor(Math.random() * 50) + 18 : Math.floor(Math.random() * 15) + 2,
-      isGugus: isDewasa ? Math.random() > 0.3 : false,
-      baptismDate: Math.random() > 0.2 ? '2019-11-20' : 'Belum Dibaptis',
-      photoUrl: `https://api.dicebear.com/9.x/avataaars/svg?seed=${fName}${lName}&backgroundColor=${isLaki ? 'b6e3f4' : 'ffd5dc'}`
-    });
-  }
-  return members;
-};
-
-// --- MAIN APPLICATION COMPONENT ---
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState('members');
-  const [memberFilter, setMemberFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  
-  const [membersData, setMembersData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const [selectedMember, setSelectedMember] = useState(null);
-  const [selectedActivity, setSelectedActivity] = useState(null);
-
-  // Ambil Data dari Google Sheets atau Data Mock
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
-
-      if (!GOOGLE_SHEET_CSV_URL) {
-        // Jika URL kosong, gunakan data dummy
-        setMembersData(generateMockMembers());
-        setIsLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(GOOGLE_SHEET_CSV_URL);
-        if (!response.ok) throw new Error('Gagal mengambil data dari Spreadsheet');
-        
-        const csvText = await response.text();
-        const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '');
-        
-        if (lines.length < 2) throw new Error('Format CSV kosong atau tidak ada data');
-
-        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-        
-        const parsedData = lines.slice(1).map((line, index) => {
-          // Asumsi pemisah koma tidak ada di dalam sel data itu sendiri
-          const values = line.split(',');
-          const row = {};
-          headers.forEach((header, i) => { row[header] = values[i] ? values[i].trim() : ''; });
-          
-          const isLaki = row['gender']?.toUpperCase() === 'L';
-          const isDewasa = row['kategori']?.toLowerCase() === 'dewasa';
-          
-          return {
-            id: `GS_${index}`,
-            name: row['nama'] || 'Tanpa Nama',
-            type: isDewasa ? 'adult' : 'child',
-            gender: isLaki ? 'L' : 'P',
-            age: parseInt(row['umur']) || 0,
-            isGugus: row['gugus']?.toLowerCase() === 'ya',
-            baptismDate: row['baptis'] || 'Belum',
-            photoUrl: `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(row['nama'])}&backgroundColor=${isLaki ? 'b6e3f4' : 'ffd5dc'}`
-          };
-        });
-
-        setMembersData(parsedData);
-      } catch (err) {
-        console.error(err);
-        setError('Terjadi kesalahan saat memuat data. Pastikan link Google Sheet sudah di-publish ke CSV dengan benar.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Filter Data
-  const filteredMembers = useMemo(() => {
-    return membersData.filter(member => {
-      const matchesFilter = memberFilter === 'all' || member.type === memberFilter;
-      const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesFilter && matchesSearch;
-    });
-  }, [membersData, memberFilter, searchQuery]);
-
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
-      {/* HEADER */}
-      <header className="bg-blue-900 text-white shadow-md sticky top-0 z-30">
-        <div className="max-w-6xl mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold text-center tracking-tight">Sistem Informasi Jemaat Interaktif</h1>
-          <p className="text-blue-200 text-center mt-2 text-sm">
-            {GOOGLE_SHEET_CSV_URL ? "Data tersinkronisasi dari Google Spreadsheet" : "Direktori Kaum Saleh, Anak-anak, dan Kegiatan Gereja"}
-          </p>
+    <div id="jemaatModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('jemaatModal')">&times;</span>
+            <div id="modal-jemaat-body"></div>
         </div>
-        
-        {/* TAB NAVIGATION */}
-        <div className="flex justify-center border-t border-blue-800 bg-blue-950">
-          <button 
-            onClick={() => setActiveTab('members')}
-            className={`flex items-center px-6 py-4 font-medium transition-colors ${activeTab === 'members' ? 'bg-white text-blue-900' : 'text-blue-100 hover:bg-blue-800 hover:text-white'}`}
-          >
-            <Users className="w-5 h-5 mr-2" />
-            Direktori Jemaat
-          </button>
-          <button 
-            onClick={() => setActiveTab('activities')}
-            className={`flex items-center px-6 py-4 font-medium transition-colors ${activeTab === 'activities' ? 'bg-white text-blue-900' : 'text-blue-100 hover:bg-blue-800 hover:text-white'}`}
-          >
-            <Calendar className="w-5 h-5 mr-2" />
-            Kegiatan Gereja
-          </button>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 py-8">
-        
-        {/* --- VIEW: MEMBERS --- */}
-        {activeTab === 'members' && (
-          <div className="animate-in fade-in duration-500">
-            {/* Controls */}
-            <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 gap-4">
-              <div className="flex bg-slate-100 p-1 rounded-lg">
-                <button 
-                  onClick={() => setMemberFilter('all')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${memberFilter === 'all' ? 'bg-white shadow text-blue-700' : 'text-slate-600 hover:text-slate-900'}`}
-                >
-                  Semua ({membersData.length})
-                </button>
-                <button 
-                  onClick={() => setMemberFilter('adult')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center ${memberFilter === 'adult' ? 'bg-white shadow text-blue-700' : 'text-slate-600 hover:text-slate-900'}`}
-                >
-                  <Users className="w-4 h-4 mr-1" /> Kaum Saleh
-                </button>
-                <button 
-                  onClick={() => setMemberFilter('child')}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center ${memberFilter === 'child' ? 'bg-white shadow text-blue-700' : 'text-slate-600 hover:text-slate-900'}`}
-                >
-                  <Baby className="w-4 h-4 mr-1" /> Anak-anak
-                </button>
-              </div>
-
-              <div className="relative w-full md:w-72">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-                <input 
-                  type="text" 
-                  placeholder="Cari nama jemaat..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-            </div>
-
-            {/* Loading / Error States */}
-            {isLoading && (
-              <div className="flex flex-col items-center justify-center py-20 text-slate-500">
-                <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
-                <p>Memuat data dari Spreadsheet...</p>
-              </div>
-            )}
-
-            {error && (
-              <div className="bg-rose-50 text-rose-700 p-6 rounded-xl border border-rose-200 flex flex-col items-center text-center">
-                <AlertCircle className="w-12 h-12 mb-3 text-rose-500" />
-                <h3 className="font-bold text-lg mb-1">Gagal Memuat Data</h3>
-                <p>{error}</p>
-              </div>
-            )}
-
-            {/* Grid */}
-            {!isLoading && !error && (
-              <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {filteredMembers.map(member => (
-                    <div 
-                      key={member.id} 
-                      onClick={() => setSelectedMember(member)}
-                      className="bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-100 p-4 flex flex-col items-center cursor-pointer transform transition-all hover:-translate-y-1 hover:border-blue-300 group"
-                    >
-                      <div className={`relative w-20 h-20 mb-3 rounded-full overflow-hidden border-2 border-transparent transition-all ${member.gender === 'L' ? 'bg-blue-100 group-hover:border-blue-400' : 'bg-pink-100 group-hover:border-pink-400'}`}>
-                        <img src={member.photoUrl} alt={member.name} className="w-full h-full object-cover" />
-                      </div>
-                      <h3 className="text-sm font-semibold text-center line-clamp-1">{member.name}</h3>
-                      <span className={`mt-1 text-xs px-2 py-0.5 rounded-full ${member.type === 'adult' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
-                        {member.type === 'adult' ? 'Kaum Saleh' : 'Anak-anak'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                
-                {filteredMembers.length === 0 && membersData.length > 0 && (
-                  <div className="text-center py-20 text-slate-500">
-                    <Users className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-                    <p>Tidak ada jemaat yang ditemukan dengan pencarian "{searchQuery}".</p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        )}
-
-        {/* --- VIEW: ACTIVITIES --- */}
-        {activeTab === 'activities' && (
-          <div className="animate-in fade-in duration-500">
-            <h2 className="text-2xl font-bold mb-6 text-slate-800 border-b pb-2">Jadwal & Kegiatan Gereja</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-              {activitiesData.map(activity => (
-                <div 
-                  key={activity.id}
-                  onClick={() => setSelectedActivity(activity)}
-                  className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer group border border-slate-100 flex flex-col"
-                >
-                  <div className="h-64 overflow-hidden relative">
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all z-10"></div>
-                    <img 
-                      src={activity.image} 
-                      alt={activity.title} 
-                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 z-20">
-                      <h3 className="text-xl font-bold text-white">{activity.title}</h3>
-                    </div>
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col">
-                    <p className="text-slate-600 line-clamp-2 flex-1">{activity.description}</p>
-                    <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
-                      <div className="flex items-center text-sm text-slate-500">
-                        <Clock className="w-4 h-4 mr-1 text-blue-500" /> {activity.time}
-                      </div>
-                      <span className="text-blue-600 text-sm font-medium flex items-center group-hover:underline">
-                        Lihat Detail <ArrowLeft className="w-4 h-4 ml-1 rotate-180" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-      </main>
-
-      {/* --- MODAL: MEMBER DETAILS --- */}
-      {selectedMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
-          <div 
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={`relative p-8 text-center bg-gradient-to-br ${selectedMember.gender === 'L' ? 'from-blue-600 to-blue-800' : 'from-pink-500 to-rose-700'}`}>
-              <button 
-                onClick={() => setSelectedMember(null)}
-                className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full p-1.5 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-              <div className="w-32 h-32 mx-auto bg-white rounded-full p-1 shadow-lg mb-4">
-                <img src={selectedMember.photoUrl} alt={selectedMember.name} className="w-full h-full rounded-full object-cover bg-slate-100" />
-              </div>
-              <h2 className="text-2xl font-bold text-white">{selectedMember.name}</h2>
-              <p className="text-white/80 mt-1">
-                {selectedMember.type === 'adult' ? 'Kaum Saleh' : 'Anak-anak'} • {selectedMember.gender === 'L' ? 'Laki-laki' : 'Perempuan'}
-              </p>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              <div className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <Info className="w-5 h-5 text-blue-500 mr-3" />
-                <div>
-                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Umur</p>
-                  <p className="text-slate-800 font-medium">{selectedMember.age} Tahun</p>
-                </div>
-              </div>
-
-              <div className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-                {selectedMember.isGugus ? (
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500 mr-3" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-rose-500 mr-3" />
-                )}
-                <div>
-                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Keikutsertaan Gugus</p>
-                  <p className={`font-medium ${selectedMember.isGugus ? 'text-emerald-700' : 'text-rose-700'}`}>
-                    {selectedMember.isGugus ? 'Ikut Gugus / Sel' : 'Tidak Ikut Gugus'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
-                <Droplets className="w-5 h-5 text-cyan-500 mr-3" />
-                <div>
-                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Data Baptisan</p>
-                  <p className="text-slate-800 font-medium">{selectedMember.baptismDate}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-center">
-              <button 
-                onClick={() => setSelectedMember(null)}
-                className={`w-full text-white font-medium py-2.5 rounded-lg transition-colors ${selectedMember.gender === 'L' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-pink-600 hover:bg-pink-700'}`}
-              >
-                Kembali ke Layar Awal
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* --- MODAL: ACTIVITY DETAILS --- */}
-      {selectedActivity && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-slate-900/70 backdrop-blur-sm animate-in fade-in overflow-y-auto">
-          <div 
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden my-auto animate-in slide-in-from-bottom-4 duration-300 relative flex flex-col md:flex-row"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button 
-              onClick={() => setSelectedActivity(null)}
-              className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors z-20 md:text-slate-400 md:bg-transparent md:hover:bg-slate-100 md:hover:text-slate-800"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            {/* Left side: Image */}
-            <div className="w-full md:w-1/2 h-64 md:h-auto relative">
-              <img src={selectedActivity.image} alt={selectedActivity.title} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:hidden"></div>
-              <h2 className="absolute bottom-4 left-4 text-2xl font-bold text-white md:hidden">{selectedActivity.title}</h2>
-            </div>
-
-            {/* Right side: Content */}
-            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col">
-              <h2 className="text-2xl font-bold text-slate-800 hidden md:block mb-4 pr-8">{selectedActivity.title}</h2>
-              
-              <div className="space-y-5 flex-1">
-                <div>
-                  <h4 className="text-xs font-bold uppercase text-blue-600 tracking-wider mb-1">Deskripsi Kegiatan</h4>
-                  <p className="text-slate-600 text-sm leading-relaxed">{selectedActivity.description}</p>
-                </div>
-
-                <div>
-                  <h4 className="text-xs font-bold uppercase text-emerald-600 tracking-wider mb-1">Tujuan Umum</h4>
-                  <p className="text-slate-600 text-sm leading-relaxed">{selectedActivity.purpose}</p>
-                </div>
-
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                  <h4 className="text-xs font-bold uppercase text-purple-600 tracking-wider mb-1">Tujuan Ibadah / Rohani</h4>
-                  <p className="text-slate-800 font-medium text-sm">{selectedActivity.worshipPurpose}</p>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 pt-4 border-t border-slate-100">
-                  <div className="flex items-start">
-                    <Clock className="w-5 h-5 text-slate-400 mr-3 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-slate-500 font-semibold">Waktu</p>
-                      <p className="text-sm text-slate-800">{selectedActivity.time}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <MapPin className="w-5 h-5 text-slate-400 mr-3 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-slate-500 font-semibold">Lokasi</p>
-                      <p className="text-sm text-slate-800">{selectedActivity.location}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* PIC Section */}
-              <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Penanggung Jawab (PIC)</p>
-                  <div className="flex items-center">
-                    <img src={selectedActivity.pic.photo} alt={selectedActivity.pic.name} className="w-10 h-10 rounded-full bg-slate-200 border border-slate-300 mr-3" />
-                    <p className="font-bold text-slate-800">{selectedActivity.pic.name}</p>
-                  </div>
-                </div>
-                
-                <button 
-                  onClick={() => setSelectedActivity(null)}
-                  className="hidden md:block bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                >
-                  Tutup
-                </button>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      )}
-
     </div>
-  );
-}
+
+    <div id="kegiatanModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('kegiatanModal')">&times;</span>
+            <div id="modal-kegiatan-body"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,1246 +1,490 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <title>PROMPT GENERATOR • Gemini Foto Produk</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description"
-        content="Prompt generator untuk Gemini image: pilih kategori produk, detail, gaya visual, pose, dan warna dalam Bahasa Indonesia, lalu otomatis menghasilkan prompt Bahasa Inggris yang rapi dan siap pakai." />
-
-  <style>
-    :root {
-      --bg: #f5f3ff;
-      --card: #ffffff;
-      --accent: #7c3aed;
-      --accent-soft: rgba(59, 130, 246, 0.12);
-      --accent-strong: #1d4ed8;
-      --border: #e0f2fe;
-      --text-main: #111827;
-      --text-muted: #6b7280;
-
-      --radius-lg: 18px;
-      --radius-md: 12px;
-      --shadow-soft: 0 16px 32px rgba(15, 23, 42, 0.08);
-      --max-width: 480px;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top left, #fefce8, #f0f9ff 40%, #e0f2fe 70%);
-      color: var(--text-main);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .shell {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* HEADER */
-    header.site-header {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      backdrop-filter: blur(18px);
-      background: linear-gradient(to bottom, rgba(240, 249, 255, 0.95), rgba(254, 252, 232, 0.9));
-      border-bottom: 1px solid rgba(239, 246, 255, 0.8);
-    }
-
-    .header-inner {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      background: radial-gradient(circle at 30% 20%, #fefce8, #60a5fa);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #eff6ff;
-      box-shadow: 0 10px 22px rgba(96, 165, 250, 0.55);
-    }
-
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .brand-text span:first-child {
-      font-size: 0.88rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-    }
-
-    .brand-text span:last-child {
-      font-size: 0.76rem;
-      color: var(--text-muted);
-    }
-
-    .header-tag {
-      font-size: 0.74rem;
-      padding: 5px 9px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(96,165,250,0.45);
-      color: var(--text-muted);
-      white-space: nowrap;
-    }
-
-    main {
-      flex: 1;
-    }
-
-    /* CONTAINER */
-    .page {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding: 14px 16px 24px;
-    }
-
-    /* HERO */
-    .hero-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent-strong);
-      font-size: 0.78rem;
-      margin-bottom: 8px;
-    }
-
-    .hero-pill-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .hero-title {
-      margin: 0 0 6px;
-      font-size: 1.5rem;
-      letter-spacing: -0.03em;
-      text-transform: uppercase;
-    }
-
-    .hero-subtitle {
-      margin: 0 0 10px;
-      font-size: 0.88rem;
-      color: var(--text-muted);
-    }
-
-    .hero-highlight {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 6px;
-      font-size: 0.76rem;
-      color: var(--text-muted);
-    }
-
-    .hero-highlight span {
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(96,165,250,0.45);
-    }
-
-    .hero-card {
-      margin-top: 12px;
-      border-radius: var(--radius-lg);
-      background: radial-gradient(circle at top, #f0f9ff, #fefce8);
-      border: 1px solid rgba(96,165,250,0.45);
-      padding: 12px;
-      box-shadow: var(--shadow-soft);
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .hero-card h2 {
-      margin: 0 0 6px;
-      font-size: 0.9rem;
-    }
-
-    .hero-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 4px;
-    }
-
-    .hero-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-    }
-
-    .hero-list li span.bullet {
-      margin-top: 2px;
-      font-size: 0.85rem;
-    }
-
-    .hero-list li span.text {
-      font-size: 0.78rem;
-    }
-
-    /* CARD UMUM */
-    .card {
-      background: var(--card);
-      border-radius: var(--radius-lg);
-      border: 1px solid rgba(96,165,250,0.45);
-      box-shadow: var(--shadow-soft);
-      padding: 14px 14px 16px;
-      margin-top: 14px;
-    }
-
-    .card h2 {
-      margin: 0 0 4px;
-      font-size: 0.98rem;
-    }
-
-    .card-subtitle {
-      margin: 0 0 10px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .step-label {
-      font-size: 0.74rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    /* FORM */
-    .field-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    label {
-      font-size: 0.82rem;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 10px;
-    }
-
-    label span.hint {
-      font-weight: 400;
-      font-size: 0.74rem;
-      color: var(--text-muted);
-    }
-
-    input[type="text"],
-    textarea,
-    select {
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-      padding: 7px 10px;
-      font-size: 0.88rem;
-      font-family: inherit;
-      background: #eff6ff;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-      resize: vertical;
-      min-height: 36px;
-    }
-
-    input[type="file"] {
-      font-size: 0.78rem;
-    }
-
-    input[type="text"]:focus,
-    textarea:focus,
-    select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.25);
-      background: #ffffff;
-    }
-
-    textarea {
-      min-height: 52px;
-    }
-
-    .file-box {
-      border-radius: var(--radius-md);
-      border: 1px dashed var(--border);
-      padding: 9px;
-      background: #eff6ff;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .file-box strong {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .preview {
-      margin-top: 6px;
-      max-height: 160px;
-      overflow: hidden;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-      background: #0f172a;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .preview img {
-      max-width: 100%;
-      max-height: 160px;
-      object-fit: contain;
-      display: block;
-    }
-
-    .manual-input {
-      margin-top: 4px;
-      display: none;
-      font-size: 0.82rem;
-    }
-
-    .btn-row {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 9px 15px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease, opacity 0.12s ease;
-      width: 100%;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #eff6ff;
-      box-shadow: 0 10px 24px rgba(96, 165, 250, 0.45);
-    }
-
-    .btn-primary:hover {
-      background: var(--accent-strong);
-    }
-
-    .btn-secondary {
-      background: #f3f4ff;
-      color: var(--text-main);
-    }
-
-    .btn-secondary:hover {
-      background: #e5e7ff;
-    }
-
-    .btn-sm {
-      padding: 7px 12px;
-      font-size: 0.8rem;
-      width: auto;
-      align-self: flex-start;
-    }
-
-    button:active {
-      transform: translateY(1px);
-      box-shadow: none;
-    }
-
-    /* OUTPUT */
-    .result-card {
-      margin-top: 10px;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border);
-      background: linear-gradient(to bottom right, #eff6ff, #fef9c3);
-      padding: 10px;
-    }
-
-    .result-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .result-header h3 {
-      margin: 0;
-      font-size: 0.92rem;
-    }
-
-    .badge {
-      font-size: 0.72rem;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent-strong);
-      white-space: nowrap;
-    }
-
-    .result-card textarea {
-      width: 100%;
-      border-radius: 10px;
-      border: 1px solid #e5e7eb;
-      background: #ffffff;
-      font-size: 0.8rem;
-      line-height: 1.48;
-      min-height: 200px;
-    }
-
-    /* TIPS */
-    .tips-list {
-      list-style: none;
-      padding: 0;
-      margin: 6px 0 0;
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      display: grid;
-      gap: 4px;
-    }
-
-    .tips-list li {
-      display: flex;
-      gap: 6px;
-    }
-
-    .tips-list li span.icon {
-      font-size: 0.88rem;
-      margin-top: 1px;
-    }
-
-    .tips-list li span.text {
-      flex: 1;
-    }
-
-    /* KOMUNITAS & KONTAK */
-    .community-card {
-      margin-top: 16px;
-      border-radius: var(--radius-lg);
-      background: linear-gradient(135deg, #60a5fa, #fde68a);
-      color: #eff6ff;
-      padding: 14px 14px 12px;
-      box-shadow: 0 18px 40px rgba(59, 130, 246, 0.7);
-    }
-
-    .community-title {
-      margin: 0 0 4px;
-      font-size: 0.98rem;
-      font-weight: 700;
-    }
-
-    .community-sub {
-      margin: 0 0 10px;
-      font-size: 0.8rem;
-      opacity: 0.9;
-    }
-
-    .community-link {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.16);
-      padding: 8px 12px;
-      font-size: 0.82rem;
-    }
-
-    .community-link span.label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .community-link span.badge-plat {
-      font-size: 0.72rem;
-      padding: 2px 6px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.3);
-    }
-
-    .community-link a.join-btn {
-      padding: 6px 12px;
-      border-radius: 999px;
-      background: #eff6ff;
-      color: #4c1d95;
-      font-weight: 600;
-      font-size: 0.78rem;
-      white-space: nowrap;
-    }
-
-    .feedback-text {
-      margin: 16px 0 8px;
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .contact-card {
-      border-radius: var(--radius-lg);
-      background: #eff6ff;
-      border: 1px solid rgba(96,165,250,0.45);
-      padding: 12px 14px;
-      font-size: 0.8rem;
-      color: var(--text-main);
-    }
-
-    .contact-card h3 {
-      margin: 0 0 6px;
-      font-size: 0.9rem;
-    }
-
-    .contact-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      display: grid;
-      gap: 4px;
-    }
-
-    .contact-list li span.label {
-      font-weight: 600;
-    }
-
-    footer.site-footer {
-      border-top: 1px solid rgba(239, 246, 255, 0.8);
-      background: #eff6ff;
-      margin-top: auto;
-    }
-
-    .footer-inner {
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding: 8px 16px 14px;
-      font-size: 0.74rem;
-      color: var(--text-muted);
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <div class="shell">
-    <!-- HEADER -->
-    <header class="site-header" aria-label="Header utama">
-      <div class="header-inner">
-        <div class="brand">
-          <div class="brand-logo" aria-hidden="true">PG</div>
-          <div class="brand-text">
-            <span>PROMPT GENERATOR</span>
-            <span>Gemini Foto Produk</span>
-          </div>
-        </div>
-        <div class="header-tag">
-          Input: ID • Output: EN
-        </div>
-      </div>
-    </header>
-
-    <main>
-      <div class="page">
-        <!-- HERO -->
-        <section aria-labelledby="hero-title">
-          <div class="hero-pill">
-            <span class="hero-pill-dot"></span>
-            <span>Dirancang agar nyaman dipakai langsung dari HP</span>
-          </div>
-          <h1 id="hero-title" class="hero-title">Prompt Generator untuk Gemini</h1>
-          <p class="hero-subtitle">
-            Pilih kategori produk, detail, gaya visual, pose, dan warna dalam Bahasa Indonesia.
-            Sistem merangkai semuanya menjadi prompt Bahasa Inggris yang rapi dan siap ditempel ke Gemini (image).
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  Users, 
+  Baby, 
+  Calendar, 
+  Search, 
+  X, 
+  CheckCircle2, 
+  XCircle, 
+  Droplets,
+  Info,
+  MapPin,
+  Clock,
+  ArrowLeft,
+  Loader2,
+  AlertCircle
+} from 'lucide-react';
+
+// ============================================================================
+// KONFIGURASI GOOGLE SPREADSHEET
+// ============================================================================
+// Masukkan link "Publish to web" (format CSV) dari Google Sheet Anda di sini.
+// Biarkan kosong ('') jika ingin melihat data simulasi otomatis.
+const GOOGLE_SHEET_CSV_URL = ''; 
+// Contoh format URL jika sudah di-publish:
+// const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ.../pub?output=csv';
+
+// Format Kolom di Google Sheet HARUS berurutan atau bernama (baris pertama):
+// Nama, Kategori, Gender, Umur, Gugus, Baptis
+// - Kategori: isi dengan "Dewasa" atau "Anak"
+// - Gender: isi dengan "L" atau "P"
+// - Gugus: isi dengan "Ya" atau "Tidak"
+// - Baptis: isi dengan Tanggal (misal: "2020-01-01") atau "Belum"
+// ============================================================================
+
+const activitiesData = [
+  {
+    id: 1,
+    title: 'Ibadah Raya Minggu',
+    image: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=800&q=80',
+    description: 'Ibadah raya utama yang diadakan setiap hari Minggu untuk seluruh jemaat.',
+    purpose: 'Memfasilitasi persekutuan jemaat dalam memuji, menyembah, dan mendengarkan Firman Tuhan bersama-sama.',
+    worshipPurpose: 'Penyembahan Korporat & Pembangunan Iman',
+    time: 'Setiap Minggu, 09:00 WIB',
+    location: 'Ruang Ibadah Utama',
+    pic: { name: 'Pdt. Andreas Wibowo', photo: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Andreas&backgroundColor=c0aede' }
+  },
+  {
+    id: 2,
+    title: 'Sekolah Minggu Ceria',
+    image: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800&q=80',
+    description: 'Kegiatan ibadah dan belajar khusus untuk anak-anak usia 1-15 tahun.',
+    purpose: 'Mengenalkan nilai-nilai Kristiani dan kasih Tuhan Yesus sejak dini.',
+    worshipPurpose: 'Pembinaan Iman Anak',
+    time: 'Setiap Minggu, 09:00 WIB',
+    location: 'Gedung Sekolah Minggu',
+    pic: { name: 'Kak Sisca Patricia', photo: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Sisca&backgroundColor=ffdfbf' }
+  },
+  {
+    id: 3,
+    title: 'Persekutuan Doa Gugus',
+    image: 'https://images.unsplash.com/photo-1529070538774-1843cb3265df?w=800&q=80',
+    description: 'Pertemuan kelompok kecil (sel) di rumah-rumah jemaat untuk berbagi dan berdoa.',
+    purpose: 'Membangun keintiman antar jemaat, saling menopang dalam doa.',
+    worshipPurpose: 'Pemuridan & Penggembalaan Personal',
+    time: 'Setiap Rabu, 19:00 WIB',
+    location: 'Rumah Jemaat (Bergiliran)',
+    pic: { name: 'Bpk. Handoko', photo: 'https://api.dicebear.com/9.x/avataaars/svg?seed=Handoko&backgroundColor=b6e3f4' }
+  }
+];
+
+// Fallback Generator jika URL CSV Kosong
+const generateMockMembers = () => {
+  const members = [];
+  const firstNamesL = ['Budi', 'Agus', 'Joko', 'Wahyu', 'Andi', 'Hadi', 'Iwan', 'Eko', 'Arief', 'Hendra', 'Rudi'];
+  const firstNamesP = ['Siti', 'Sri', 'Rini', 'Rina', 'Nina', 'Dewi', 'Lia', 'Maya', 'Sari'];
+  const lastNames = ['Setiawan', 'Hidayat', 'Saputra', 'Wijaya', 'Kusuma', 'Pratama', 'Santoso'];
+
+  for (let i = 1; i <= 250; i++) {
+    const isDewasa = i <= 200;
+    const isLaki = Math.random() > 0.5;
+    const fNames = isLaki ? firstNamesL : firstNamesP;
+    const fName = fNames[Math.floor(Math.random() * fNames.length)];
+    const lName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    
+    members.push({
+      id: `M${i}`,
+      name: `${fName} ${lName}`,
+      type: isDewasa ? 'adult' : 'child',
+      gender: isLaki ? 'L' : 'P',
+      age: isDewasa ? Math.floor(Math.random() * 50) + 18 : Math.floor(Math.random() * 15) + 2,
+      isGugus: isDewasa ? Math.random() > 0.3 : false,
+      baptismDate: Math.random() > 0.2 ? '2019-11-20' : 'Belum Dibaptis',
+      photoUrl: `https://api.dicebear.com/9.x/avataaars/svg?seed=${fName}${lName}&backgroundColor=${isLaki ? 'b6e3f4' : 'ffd5dc'}`
+    });
+  }
+  return members;
+};
+
+// --- MAIN APPLICATION COMPONENT ---
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('members');
+  const [memberFilter, setMemberFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const [membersData, setMembersData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+
+  // Ambil Data dari Google Sheets atau Data Mock
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      if (!GOOGLE_SHEET_CSV_URL) {
+        // Jika URL kosong, gunakan data dummy
+        setMembersData(generateMockMembers());
+        setIsLoading(false);
+        return;
+      }
+
+      try {
+        const response = await fetch(GOOGLE_SHEET_CSV_URL);
+        if (!response.ok) throw new Error('Gagal mengambil data dari Spreadsheet');
+        
+        const csvText = await response.text();
+        const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '');
+        
+        if (lines.length < 2) throw new Error('Format CSV kosong atau tidak ada data');
+
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        
+        const parsedData = lines.slice(1).map((line, index) => {
+          // Asumsi pemisah koma tidak ada di dalam sel data itu sendiri
+          const values = line.split(',');
+          const row = {};
+          headers.forEach((header, i) => { row[header] = values[i] ? values[i].trim() : ''; });
+          
+          const isLaki = row['gender']?.toUpperCase() === 'L';
+          const isDewasa = row['kategori']?.toLowerCase() === 'dewasa';
+          
+          return {
+            id: `GS_${index}`,
+            name: row['nama'] || 'Tanpa Nama',
+            type: isDewasa ? 'adult' : 'child',
+            gender: isLaki ? 'L' : 'P',
+            age: parseInt(row['umur']) || 0,
+            isGugus: row['gugus']?.toLowerCase() === 'ya',
+            baptismDate: row['baptis'] || 'Belum',
+            photoUrl: `https://api.dicebear.com/9.x/avataaars/svg?seed=${encodeURIComponent(row['nama'])}&backgroundColor=${isLaki ? 'b6e3f4' : 'ffd5dc'}`
+          };
+        });
+
+        setMembersData(parsedData);
+      } catch (err) {
+        console.error(err);
+        setError('Terjadi kesalahan saat memuat data. Pastikan link Google Sheet sudah di-publish ke CSV dengan benar.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Filter Data
+  const filteredMembers = useMemo(() => {
+    return membersData.filter(member => {
+      const matchesFilter = memberFilter === 'all' || member.type === memberFilter;
+      const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesFilter && matchesSearch;
+    });
+  }, [membersData, memberFilter, searchQuery]);
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+      {/* HEADER */}
+      <header className="bg-blue-900 text-white shadow-md sticky top-0 z-30">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          <h1 className="text-3xl font-bold text-center tracking-tight">Sistem Informasi Jemaat Interaktif</h1>
+          <p className="text-blue-200 text-center mt-2 text-sm">
+            {GOOGLE_SHEET_CSV_URL ? "Data tersinkronisasi dari Google Spreadsheet" : "Direktori Kaum Saleh, Anak-anak, dan Kegiatan Gereja"}
           </p>
-          <div class="hero-highlight" aria-label="Highlight fitur">
-            <span>🎯 Fokus foto produk (skincare, outfit, keychain, dll)</span>
-            <span>📱 Layout mobile-first</span>
-            <span>🧩 Dropdown + opsi tulis manual</span>
+        </div>
+        
+        {/* TAB NAVIGATION */}
+        <div className="flex justify-center border-t border-blue-800 bg-blue-950">
+          <button 
+            onClick={() => setActiveTab('members')}
+            className={`flex items-center px-6 py-4 font-medium transition-colors ${activeTab === 'members' ? 'bg-white text-blue-900' : 'text-blue-100 hover:bg-blue-800 hover:text-white'}`}
+          >
+            <Users className="w-5 h-5 mr-2" />
+            Direktori Jemaat
+          </button>
+          <button 
+            onClick={() => setActiveTab('activities')}
+            className={`flex items-center px-6 py-4 font-medium transition-colors ${activeTab === 'activities' ? 'bg-white text-blue-900' : 'text-blue-100 hover:bg-blue-800 hover:text-white'}`}
+          >
+            <Calendar className="w-5 h-5 mr-2" />
+            Kegiatan Gereja
+          </button>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        
+        {/* --- VIEW: MEMBERS --- */}
+        {activeTab === 'members' && (
+          <div className="animate-in fade-in duration-500">
+            {/* Controls */}
+            <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-slate-200 mb-6 gap-4">
+              <div className="flex bg-slate-100 p-1 rounded-lg">
+                <button 
+                  onClick={() => setMemberFilter('all')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${memberFilter === 'all' ? 'bg-white shadow text-blue-700' : 'text-slate-600 hover:text-slate-900'}`}
+                >
+                  Semua ({membersData.length})
+                </button>
+                <button 
+                  onClick={() => setMemberFilter('adult')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center ${memberFilter === 'adult' ? 'bg-white shadow text-blue-700' : 'text-slate-600 hover:text-slate-900'}`}
+                >
+                  <Users className="w-4 h-4 mr-1" /> Kaum Saleh
+                </button>
+                <button 
+                  onClick={() => setMemberFilter('child')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all flex items-center ${memberFilter === 'child' ? 'bg-white shadow text-blue-700' : 'text-slate-600 hover:text-slate-900'}`}
+                >
+                  <Baby className="w-4 h-4 mr-1" /> Anak-anak
+                </button>
+              </div>
+
+              <div className="relative w-full md:w-72">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input 
+                  type="text" 
+                  placeholder="Cari nama jemaat..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            {/* Loading / Error States */}
+            {isLoading && (
+              <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+                <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-4" />
+                <p>Memuat data dari Spreadsheet...</p>
+              </div>
+            )}
+
+            {error && (
+              <div className="bg-rose-50 text-rose-700 p-6 rounded-xl border border-rose-200 flex flex-col items-center text-center">
+                <AlertCircle className="w-12 h-12 mb-3 text-rose-500" />
+                <h3 className="font-bold text-lg mb-1">Gagal Memuat Data</h3>
+                <p>{error}</p>
+              </div>
+            )}
+
+            {/* Grid */}
+            {!isLoading && !error && (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {filteredMembers.map(member => (
+                    <div 
+                      key={member.id} 
+                      onClick={() => setSelectedMember(member)}
+                      className="bg-white rounded-xl shadow-sm hover:shadow-md border border-slate-100 p-4 flex flex-col items-center cursor-pointer transform transition-all hover:-translate-y-1 hover:border-blue-300 group"
+                    >
+                      <div className={`relative w-20 h-20 mb-3 rounded-full overflow-hidden border-2 border-transparent transition-all ${member.gender === 'L' ? 'bg-blue-100 group-hover:border-blue-400' : 'bg-pink-100 group-hover:border-pink-400'}`}>
+                        <img src={member.photoUrl} alt={member.name} className="w-full h-full object-cover" />
+                      </div>
+                      <h3 className="text-sm font-semibold text-center line-clamp-1">{member.name}</h3>
+                      <span className={`mt-1 text-xs px-2 py-0.5 rounded-full ${member.type === 'adult' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                        {member.type === 'adult' ? 'Kaum Saleh' : 'Anak-anak'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                
+                {filteredMembers.length === 0 && membersData.length > 0 && (
+                  <div className="text-center py-20 text-slate-500">
+                    <Users className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+                    <p>Tidak ada jemaat yang ditemukan dengan pencarian "{searchQuery}".</p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
+        )}
 
-          <div class="hero-card" aria-label="Ringkasan langkah">
-            <h2>Cara Pakai Singkat</h2>
-            <ul class="hero-list">
-              <li>
-                <span class="bullet">①</span>
-                <span class="text">Upload screenshot / contoh jika perlu, hanya untuk dilihat di halaman ini.</span>
-              </li>
-              <li>
-                <span class="bullet">②</span>
-                <span class="text">Pilih kategori, detail produk, gaya, pose, dan warna. Jika tidak ada di list, pilih <strong>✏️ Tulis manual</strong>.</span>
-              </li>
-              <li>
-                <span class="bullet">③</span>
-                <span class="text">Tekan <strong>Generate Prompt</strong>, lalu salin prompt Bahasa Inggris yang muncul dan tempel di Gemini.</span>
-              </li>
-            </ul>
+        {/* --- VIEW: ACTIVITIES --- */}
+        {activeTab === 'activities' && (
+          <div className="animate-in fade-in duration-500">
+            <h2 className="text-2xl font-bold mb-6 text-slate-800 border-b pb-2">Jadwal & Kegiatan Gereja</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+              {activitiesData.map(activity => (
+                <div 
+                  key={activity.id}
+                  onClick={() => setSelectedActivity(activity)}
+                  className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all cursor-pointer group border border-slate-100 flex flex-col"
+                >
+                  <div className="h-64 overflow-hidden relative">
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all z-10"></div>
+                    <img 
+                      src={activity.image} 
+                      alt={activity.title} 
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 z-20">
+                      <h3 className="text-xl font-bold text-white">{activity.title}</h3>
+                    </div>
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <p className="text-slate-600 line-clamp-2 flex-1">{activity.description}</p>
+                    <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
+                      <div className="flex items-center text-sm text-slate-500">
+                        <Clock className="w-4 h-4 mr-1 text-blue-500" /> {activity.time}
+                      </div>
+                      <span className="text-blue-600 text-sm font-medium flex items-center group-hover:underline">
+                        Lihat Detail <ArrowLeft className="w-4 h-4 ml-1 rotate-180" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </section>
+        )}
 
-        <!-- FORM -->
-        <section class="card" aria-label="Form input prompt">
-          <p class="step-label">Step 1–3 • Isi detail produk</p>
-          <h2>Form Prompt Generator</h2>
-          <p class="card-subtitle">
-            Input boleh Bahasa Indonesia. Dropdown membantu menyiapkan struktur prompt yang konsisten untuk berbagai jenis foto produk.
-          </p>
+      </main>
 
-          <div class="field-group">
-            <!-- FILE -->
-            <div class="field">
-              <label for="imageInput">
-                Screenshot / Foto Produk (opsional)
-                <span class="hint">hanya untuk preview, tidak dikirim ke server</span>
-              </label>
-              <div class="file-box">
-                <strong>Upload gambar referensi</strong>
-                <input type="file" id="imageInput" accept="image/*" />
-                <div class="preview" id="imagePreview" aria-hidden="true">
-                  <img id="previewImg" alt="Preview gambar produk" />
+      {/* --- MODAL: MEMBER DETAILS --- */}
+      {selectedMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in">
+          <div 
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={`relative p-8 text-center bg-gradient-to-br ${selectedMember.gender === 'L' ? 'from-blue-600 to-blue-800' : 'from-pink-500 to-rose-700'}`}>
+              <button 
+                onClick={() => setSelectedMember(null)}
+                className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 text-white rounded-full p-1.5 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="w-32 h-32 mx-auto bg-white rounded-full p-1 shadow-lg mb-4">
+                <img src={selectedMember.photoUrl} alt={selectedMember.name} className="w-full h-full rounded-full object-cover bg-slate-100" />
+              </div>
+              <h2 className="text-2xl font-bold text-white">{selectedMember.name}</h2>
+              <p className="text-white/80 mt-1">
+                {selectedMember.type === 'adult' ? 'Kaum Saleh' : 'Anak-anak'} • {selectedMember.gender === 'L' ? 'Laki-laki' : 'Perempuan'}
+              </p>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                <Info className="w-5 h-5 text-blue-500 mr-3" />
+                <div>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Umur</p>
+                  <p className="text-slate-800 font-medium">{selectedMember.age} Tahun</p>
+                </div>
+              </div>
+
+              <div className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                {selectedMember.isGugus ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-500 mr-3" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-rose-500 mr-3" />
+                )}
+                <div>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Keikutsertaan Gugus</p>
+                  <p className={`font-medium ${selectedMember.isGugus ? 'text-emerald-700' : 'text-rose-700'}`}>
+                    {selectedMember.isGugus ? 'Ikut Gugus / Sel' : 'Tidak Ikut Gugus'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center p-3 bg-slate-50 rounded-lg border border-slate-100">
+                <Droplets className="w-5 h-5 text-cyan-500 mr-3" />
+                <div>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Data Baptisan</p>
+                  <p className="text-slate-800 font-medium">{selectedMember.baptismDate}</p>
                 </div>
               </div>
             </div>
 
-            <!-- KATEGORI -->
-            <div class="field">
-              <label for="kategori">
-                Kategori Produk
-                <span class="hint">contoh: skincare, outfit, gantungan kunci</span>
-              </label>
-              <select id="kategori">
-                <option value="">— Pilih kategori produk —</option>
-                <option value="skincare">Skincare</option>
-                <option value="makeup">Makeup / Beauty</option>
-                <option value="outfit">Outfit / Pakaian</option>
-                <option value="hijab">Hijab / Modest Fashion</option>
-                <option value="accessory">Aksesoris / Gantungan Kunci</option>
-                <option value="bag">Tas & Dompet</option>
-                <option value="footwear">Sepatu / Sandal</option>
-                <option value="jewelry">Perhiasan</option>
-                <option value="home">Home Decor / Barang Rumah</option>
-                <option value="stationery">Alat Tulis / Stationery</option>
-                <option value="electronics">Elektronik Kecil / Aksesoris HP</option>
-                <option value="drink">Snack / Minuman</option>
-                <option value="digital">Produk Digital / E-course / Preset</option>
-                <option value="kawaii">Cute / Kawaii Item</option>
-                <option value="__manual__">✏️ Tulis manual (kategori sendiri)</option>
-              </select>
-              <input
-                type="text"
-                id="kategoriManual"
-                class="manual-input"
-                placeholder="Tulis kategori produk (contoh: handmade crochet keychain)"
-              />
-            </div>
-
-            <!-- DETAIL -->
-            <div class="field">
-              <label for="detailProduk">
-                Detail Produk
-                <span class="hint">menyesuaikan kategori • bisa pilih manual</span>
-              </label>
-              <select id="detailProduk">
-                <option value="">Pilih kategori produk dulu</option>
-              </select>
-              <input
-                type="text"
-                id="detailManual"
-                class="manual-input"
-                placeholder="Tulis detail produk (contoh: pastel teddy bear keychain)"
-              />
-            </div>
-
-            <!-- FORMAT / GAYA -->
-            <div class="field">
-              <label for="format">
-                Format / Gaya Visual
-                <span class="hint">vibes foto: minimalis, pastel, luxury, dll</span>
-              </label>
-              <select id="format">
-                <option value="">— Pilih format / gaya —</option>
-                <option value="Minimalist, clean, and professional look.">Minimalist, clean, and professional look.</option>
-                <option value="Very simple, airy, and calm minimalist photo.">Very simple, airy, and calm minimalist photo.</option>
-                <option value="Neutral-toned minimalist aesthetic for social media.">Neutral-toned minimalist aesthetic for social media.</option>
-                <option value="Cute pastel aesthetic with soft, dreamy lighting.">Cute pastel aesthetic with soft, dreamy lighting.</option>
-                <option value="Playful kawaii style with gentle pastel colors, but not too busy.">Playful kawaii style with gentle pastel colors, but not too busy.</option>
-                <option value="Luxury, premium, and elegant visual style.">Luxury, premium, and elegant visual style.</option>
-                <option value="High-end brand look with clean and expensive feel.">High-end brand look with clean and expensive feel.</option>
-                <option value="Warm and cozy natural-home aesthetic.">Warm and cozy natural-home aesthetic.</option>
-                <option value="Soft natural lifestyle aesthetic, not too staged.">Soft natural lifestyle aesthetic, not too staged.</option>
-                <option value="Clinically clean, bright, and dermatology-inspired aesthetic.">Clinically clean, bright, and dermatology-inspired aesthetic.</option>
-                <option value="Fresh, healthy-skin aesthetic with soft fresh vibes.">Fresh, healthy-skin aesthetic with soft fresh vibes.</option>
-                <option value="Clean top-down flatlay composition.">Clean top-down flatlay composition.</option>
-                <option value="Organized flatlay with grid-like alignment.">Organized flatlay with grid-like alignment.</option>
-                <option value="__manual__">✏️ Tulis manual (gaya sendiri)</option>
-              </select>
-              <input
-                type="text"
-                id="formatManual"
-                class="manual-input"
-                placeholder="Tulis gaya visual sendiri (contoh: cozy pastel bedroom aesthetic)"
-              />
-            </div>
-
-            <!-- AKSI / POSE -->
-            <div class="field">
-              <label for="aksi">
-                Aksi / Pose
-                <span class="hint">pose tangan / posisi produk</span>
-              </label>
-              <select id="aksi">
-                <option value="">— Pilih aksi / pose —</option>
-                <option value="Hand holding the product toward the camera at a slight angle.">
-                  Tangan memegang produk menghadap kamera sedikit miring
-                </option>
-                <option value="Hand relaxed, palm up, showing the product in the center of the frame.">
-                  Telapak tangan terbuka memperlihatkan produk di tengah frame
-                </option>
-                <option value="Hand lifted slightly into warm sunlight, showing the product clearly.">
-                  Tangan sedikit terangkat ke arah cahaya matahari hangat, produk terlihat jelas
-                </option>
-                <option value="Product resting on a clean table with soft sunlight from the side, no hand visible.">
-                  Produk di atas meja bersih dengan cahaya matahari dari samping, tanpa tangan
-                </option>
-                <option value="Product standing upright on a flat surface with a soft shadow behind it.">
-                  Produk berdiri tegak di permukaan rata dengan bayangan lembut di belakang
-                </option>
-                <option value="Close-up crop focusing on the product and just part of the hand, filling most of the frame.">
-                  Close up, fokus ke produk dan sedikit bagian tangan, memenuhi frame
-                </option>
-                <option value="Two hands gently framing the product in the middle of the image.">
-                  Dua tangan membingkai produk di tengah gambar
-                </option>
-                <option value="Hand slightly tilted downward so the keychain hangs naturally in the light.">
-                  Tangan sedikit miring ke bawah sehingga gantungan kunci jatuh natural terkena cahaya
-                </option>
-                <option value="__manual__">✏️ Tulis manual (aksi / pose sendiri)</option>
-              </select>
-              <textarea
-                id="aksiManual"
-                class="manual-input"
-                placeholder="Tulis pose / aksi sendiri (contoh: tangan dengan sweater ungu muda memegang gantungan kunci beruang ke arah jendela)."
-              ></textarea>
-            </div>
-
-            <!-- WARNA -->
-            <div class="field">
-              <label for="warna">
-                Warna Dominan
-                <span class="hint">tone warna utama di foto</span>
-              </label>
-              <select id="warna">
-                <option value="">— Pilih warna dominan —</option>
-                <option value="White and beige neutral tones.">White and beige neutral tones.</option>
-                <option value="White, light grey, and soft neutral tones.">White, light grey, and soft neutral tones.</option>
-                <option value="Off-white and warm cream tones.">Off-white and warm cream tones.</option>
-                <option value="Soft pastel purple and pink tones.">Soft pastel purple and pink tones.</option>
-                <option value="Soft pastel green and white.">Soft pastel green and white.</option>
-                <option value="Soft pastel pink and white.">Soft pastel pink and white.</option>
-                <option value="Mixed pastel colors with a soft and gentle feel.">Mixed pastel colors with a soft and gentle feel.</option>
-                <option value="Warm beige and light brown wood tones.">Warm beige and light brown wood tones.</option>
-                <option value="Brown, cream, and warm neutral tones.">Brown, cream, and warm neutral tones.</option>
-                <option value="Warm golden and beige tones.">Warm golden and beige tones.</option>
-                <option value="Soft pink, beige, and white combination.">Soft pink, beige, and white combination.</option>
-                <option value="Soft peach and cream combination.">Soft peach and cream combination.</option>
-                <option value="Soft lilac and neutral tones.">Soft lilac and neutral tones.</option>
-                <option value="Natural wood, beige, and plant green tones.">Natural wood, beige, and plant green tones.</option>
-                <option value="Earthy tones like brown, beige, and muted green.">Earthy tones like brown, beige, and muted green.</option>
-                <option value="__manual__">✏️ Tulis manual (warna sendiri)</option>
-              </select>
-              <input
-                type="text"
-                id="warnaManual"
-                class="manual-input"
-                placeholder="Tulis kombinasi warna (contoh: krem hangat, lilac pastel, dan sedikit hijau tanaman)."
-              />
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-center">
+              <button 
+                onClick={() => setSelectedMember(null)}
+                className={`w-full text-white font-medium py-2.5 rounded-lg transition-colors ${selectedMember.gender === 'L' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-pink-600 hover:bg-pink-700'}`}
+              >
+                Kembali ke Layar Awal
+              </button>
             </div>
           </div>
+        </div>
+      )}
 
-          <div class="btn-row">
-            <button class="btn-primary" id="generateBtn" type="button">
-              🚀 Generate Prompt (EN)
+      {/* --- MODAL: ACTIVITY DETAILS --- */}
+      {selectedActivity && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-8 bg-slate-900/70 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div 
+            className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden my-auto animate-in slide-in-from-bottom-4 duration-300 relative flex flex-col md:flex-row"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setSelectedActivity(null)}
+              className="absolute top-4 right-4 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors z-20 md:text-slate-400 md:bg-transparent md:hover:bg-slate-100 md:hover:text-slate-800"
+            >
+              <X className="w-6 h-6" />
             </button>
-            <button class="btn-secondary" id="resetBtn" type="button">
-              Reset Form
-            </button>
-          </div>
-        </section>
 
-        <!-- OUTPUT -->
-        <section class="card" aria-label="Hasil prompt Gemini">
-          <p class="step-label">Step 4 • Salin dan gunakan</p>
-          <h2>Output Prompt</h2>
-          <p class="card-subtitle">
-            Prompt tersusun dalam Bahasa Inggris, menyesuaikan pilihan dan teks yang diisi di form.
-          </p>
-
-          <div class="result-card">
-            <div class="result-header">
-              <h3>Prompt Gemini — Image</h3>
-              <span class="badge">EN • siap ditempel</span>
+            {/* Left side: Image */}
+            <div className="w-full md:w-1/2 h-64 md:h-auto relative">
+              <img src={selectedActivity.image} alt={selectedActivity.title} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent md:hidden"></div>
+              <h2 className="absolute bottom-4 left-4 text-2xl font-bold text-white md:hidden">{selectedActivity.title}</h2>
             </div>
-            <textarea id="geminiOutput" readonly
-              placeholder="Isi form di atas, lalu tekan Generate Prompt untuk membuat prompt Bahasa Inggris."></textarea>
-            <div class="btn-row" style="margin-top: 6px;">
-              <button class="btn-secondary btn-sm" type="button" id="copyBtn">📋 Copy Prompt</button>
+
+            {/* Right side: Content */}
+            <div className="w-full md:w-1/2 p-6 md:p-8 flex flex-col">
+              <h2 className="text-2xl font-bold text-slate-800 hidden md:block mb-4 pr-8">{selectedActivity.title}</h2>
+              
+              <div className="space-y-5 flex-1">
+                <div>
+                  <h4 className="text-xs font-bold uppercase text-blue-600 tracking-wider mb-1">Deskripsi Kegiatan</h4>
+                  <p className="text-slate-600 text-sm leading-relaxed">{selectedActivity.description}</p>
+                </div>
+
+                <div>
+                  <h4 className="text-xs font-bold uppercase text-emerald-600 tracking-wider mb-1">Tujuan Umum</h4>
+                  <p className="text-slate-600 text-sm leading-relaxed">{selectedActivity.purpose}</p>
+                </div>
+
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                  <h4 className="text-xs font-bold uppercase text-purple-600 tracking-wider mb-1">Tujuan Ibadah / Rohani</h4>
+                  <p className="text-slate-800 font-medium text-sm">{selectedActivity.worshipPurpose}</p>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 pt-4 border-t border-slate-100">
+                  <div className="flex items-start">
+                    <Clock className="w-5 h-5 text-slate-400 mr-3 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-slate-500 font-semibold">Waktu</p>
+                      <p className="text-sm text-slate-800">{selectedActivity.time}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start">
+                    <MapPin className="w-5 h-5 text-slate-400 mr-3 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-slate-500 font-semibold">Lokasi</p>
+                      <p className="text-sm text-slate-800">{selectedActivity.location}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* PIC Section */}
+              <div className="mt-6 pt-5 border-t border-slate-100 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-1">Penanggung Jawab (PIC)</p>
+                  <div className="flex items-center">
+                    <img src={selectedActivity.pic.photo} alt={selectedActivity.pic.name} className="w-10 h-10 rounded-full bg-slate-200 border border-slate-300 mr-3" />
+                    <p className="font-bold text-slate-800">{selectedActivity.pic.name}</p>
+                  </div>
+                </div>
+                
+                <button 
+                  onClick={() => setSelectedActivity(null)}
+                  className="hidden md:block bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Tutup
+                </button>
+              </div>
+
             </div>
           </div>
-        </section>
+        </div>
+      )}
 
-        <!-- TIPS -->
-        <section class="card" aria-label="Tips hasil maksimal">
-          <p class="step-label">Tips hasil lebih maksimal</p>
-          <h2>Catatan Penting</h2>
-          <ul class="tips-list">
-            <li>
-              <span class="icon">✨</span>
-              <span class="text">Isi <strong>kategori</strong> dan <strong>detail produk</strong> sedekat mungkin dengan produk asli.</span>
-            </li>
-            <li>
-              <span class="icon">🖐️</span>
-              <span class="text">Untuk foto gaya tangan memegang produk, pilih kategori yang sesuai dan pose tangan yang paling mirip.</span>
-            </li>
-            <li>
-              <span class="icon">🎨</span>
-              <span class="text">Samakan warna dominan dengan referensi supaya hasil terlihat natural dan konsisten.</span>
-            </li>
-            <li>
-              <span class="icon">📱</span>
-              <span class="text">Prompt sudah mengatur rasio 9:16, pencahayaan soft daylight, dan kualitas HD yang nyaman dilihat di layar HP.</span>
-            </li>
-          </ul>
-        </section>
-
-        <!-- KOMUNITAS -->
-        <section class="community-card" aria-label="Grup komunitas affiliate TikTok">
-          <h2 class="community-title">Grup Komunitas Affiliate TikTok</h2>
-          <p class="community-sub">
-            Bergabung bersama kreator lain untuk saling belajar, berbagi strategi, dan mendapatkan ide konten baru seputar affiliate TikTok.
-          </p>
-          <div class="community-link">
-            <span class="label">
-              <span class="badge-plat">Tiktok Group</span>
-              <span>Komunitas Affiliate TikTok</span>
-            </span>
-            <a class="join-btn" href="https://tiktok.me/group/ZS59A9134/" target="_blank" rel="noopener noreferrer">
-              Gabung Grup
-            </a>
-          </div>
-		  <br/>
-         <div class="community-link">
-            <span class="label">
-              <span class="badge-plat">Bonus 1</span>
-            </span>
-            <a class="join-btn" href="https://gemini.google.com/share/e6572ddaa2a5" target="_blank" rel="noopener noreferrer">
-              Gas Auto Magic Image Pro
-            </a>
-          </div>
-         <div class="community-link">
-            <span class="label">
-              <span class="badge-plat">Bonus 2 A</span>
-            </span>
-            <a class="join-btn" href="https://gemini.google.com/share/dc0abed9d9e5" target="_blank" rel="noopener noreferrer">
-              Gas Auto Magic Audio Pro ver 1
-            </a>
-          </div>
-         <div class="community-link">
-            <span class="label">
-              <span class="badge-plat">Bonus 2 B</span>
-            </span>
-			 <br/>
-            <a class="join-btn" href="https://gemini.google.com/share/be60ab5de721" target="_blank" rel="noopener noreferrer">
-              Gas Auto Magic Audio Pro ver 2
-            </a>
-          </div>
-         <div class="community-link">
-            <span class="label">
-              <span class="badge-plat">Bonus 3</span>
-            </span>
-            <a class="join-btn" href="https://gemini.google.com/share/570120944076" target="_blank" rel="noopener noreferrer">
-              Gas Auto Magic cek Video Gambar
-            </a>
-          </div>
-        </section>
-
-        <!-- FEEDBACK & KONTAK -->
-        <p class="feedback-text">
-          Jika ada masukan, saran, atau ingin kerja sama terkait pengembangan tool ini, silakan hubungi kontak di bawah.
-        </p>
-
-        <section class="contact-card" aria-label="Kontak">
-          <h3>Kontak</h3>
-          <ul class="contact-list">
-            <li>
-            <a class="join-btn" href="https://www.tiktok.com/@mashanstore?_r=1&_t=ZS-93gVBf2fDaa" target="_blank" rel="noopener noreferrer">
-              Tiktok Akun
-            </a>
-
-            </li>
-          </ul>
-        </section>
-      </div>
-    </main>
-
-    <footer class="site-footer" aria-label="Footer">
-      <div class="footer-inner">
-        PROMPT GENERATOR • Gemini Foto Produk — dirancang untuk pengguna HP.
-      </div>
-    </footer>
-  </div>
-
-  <script>
-    // PREVIEW GAMBAR
-    const imageInput = document.getElementById("imageInput");
-    const imagePreview = document.getElementById("imagePreview");
-    const previewImg = document.getElementById("previewImg");
-
-    imageInput.addEventListener("change", () => {
-      const file = imageInput.files[0];
-      if (!file) {
-        imagePreview.style.display = "none";
-        previewImg.src = "";
-        return;
-      }
-      const url = URL.createObjectURL(file);
-      previewImg.src = url;
-      imagePreview.style.display = "flex";
-    });
-
-    // ELEMENT FORM
-    const kategoriSelect = document.getElementById("kategori");
-    const detailSelect = document.getElementById("detailProduk");
-    const formatSelect = document.getElementById("format");
-    const aksiSelect = document.getElementById("aksi");
-    const warnaSelect = document.getElementById("warna");
-
-    const kategoriManualInput = document.getElementById("kategoriManual");
-    const detailManualInput = document.getElementById("detailManual");
-    const formatManualInput = document.getElementById("formatManual");
-    const aksiManualInput = document.getElementById("aksiManual");
-    const warnaManualInput = document.getElementById("warnaManual");
-
-    const generateBtn = document.getElementById("generateBtn");
-    const resetBtn = document.getElementById("resetBtn");
-    const copyBtn = document.getElementById("copyBtn");
-    const geminiOutput = document.getElementById("geminiOutput");
-
-    // DATA KATEGORI & DETAIL
-    const kategoriMap = {
-      skincare: "A skincare product photo.",
-      makeup: "A makeup or beauty product photo.",
-      outfit: "A fashion clothing or outfit product photo.",
-      hijab: "A hijab or modest fashion product photo.",
-      accessory: "A small cute accessory product photo, such as a keychain or charm.",
-      bag: "A bag or wallet product photo.",
-      footwear: "A footwear product photo such as shoes or sandals.",
-      jewelry: "A jewelry product photo.",
-      home: "A home decor or small lifestyle item product photo.",
-      stationery: "A stationery or cute desk item product photo.",
-      electronics: "A small gadget or phone-accessory product photo.",
-      drink: "A snack or drink product photo.",
-      digital: "A digital product mockup such as an online course, preset, or template.",
-      kawaii: "A kawaii-style cute item product photo."
-    };
-
-    const detailOptions = {
-      skincare: [
-        { label: "Sunscreen", value: "Daily-use sunscreen product." },
-        { label: "Moisturizer", value: "Facial moisturizer cream or gel." },
-        { label: "Serum", value: "Face serum in a dropper bottle." },
-        { label: "Toner", value: "Facial toner in a bottle." },
-        { label: "Facial Wash", value: "Facial wash or cleanser product." },
-        { label: "Face Mask", value: "Sheet mask or wash-off face mask." },
-        { label: "Lip Balm", value: "Lip balm or lip treatment product." }
-      ],
-      makeup: [
-        { label: "Lip Tint / Lipstick", value: "Lip tint or lipstick product." },
-        { label: "Cushion / Foundation", value: "Cushion or foundation base product." },
-        { label: "Blush On", value: "Blush on or cheek tint product." },
-        { label: "Mascara", value: "Mascara for eyelashes." },
-        { label: "Eyeshadow Palette", value: "Eyeshadow palette product." }
-      ],
-      outfit: [
-        { label: "Kaos / T-shirt", value: "Casual T-shirt or basic top." },
-        { label: "Hoodie / Sweater", value: "Cozy hoodie or sweater top." },
-        { label: "Kemeja", value: "Shirt or button-up top." },
-        { label: "Dress", value: "Dress or one-piece outfit." },
-        { label: "Celana / Jeans", value: "Pants or jeans." }
-      ],
-      hijab: [
-        { label: "Pashmina", value: "Pashmina hijab." },
-        { label: "Segi Empat", value: "Square hijab (segi empat)." },
-        { label: "Inner / Ciput", value: "Inner hijab or underscarf." }
-      ],
-      accessory: [
-        { label: "Gantungan Kunci Boneka", value: "Cute plush teddy bear keychain." },
-        { label: "Gantungan Kunci Acrylic", value: "Acrylic keychain with cute design." },
-        { label: "Keychain Heart Charm", value: "Heart-shaped charm keychain, pastel aesthetic." },
-        { label: "Phone Strap / Charm HP", value: "Cute phone strap or phone charm accessory." },
-        { label: "Gelang / Bracelet", value: "Cute bracelet accessory." }
-      ],
-      bag: [
-        { label: "Tote Bag", value: "Canvas tote bag." },
-        { label: "Shoulder Bag", value: "Small shoulder bag." },
-        { label: "Mini Sling Bag", value: "Mini sling bag or crossbody bag." },
-        { label: "Dompet / Wallet", value: "Small wallet or card holder." }
-      ],
-      footwear: [
-        { label: "Sneakers", value: "Casual sneakers." },
-        { label: "Sandal", value: "Simple sandals." },
-        { label: "Flat Shoes", value: "Flat shoes." }
-      ],
-      jewelry: [
-        { label: "Cincin", value: "Ring jewelry piece." },
-        { label: "Kalung", value: "Necklace jewelry piece." },
-        { label: "Gelang", value: "Bracelet jewelry piece." },
-        { label: "Anting", value: "Earrings jewelry piece." }
-      ],
-      home: [
-        { label: "Mug / Gelas", value: "Ceramic mug or glass." },
-        { label: "Tumbler / Botol Minum", value: "Tumbler or reusable water bottle." },
-        { label: "Bantal / Cushion", value: "Decorative cushion or pillow." },
-        { label: "Lilin Aromaterapi", value: "Scented candle." }
-      ],
-      stationery: [
-        { label: "Pulpen / Highlighter", value: "Cute pens or highlighters." },
-        { label: "Notebook / Journal", value: "Notebook or journal." },
-        { label: "Sticker Pack", value: "Cute sticker pack." },
-        { label: "Desk Organizer", value: "Small desk organizer item." }
-      ],
-      electronics: [
-        { label: "Earphone / Headset", value: "Earphones or small headset." },
-        { label: "Powerbank", value: "Powerbank device." },
-        { label: "Casing HP", value: "Cute phone case." },
-        { label: "Charger / Kabel Data", value: "Charger or data cable." }
-      ],
-      drink: [
-        { label: "Minuman Botol / Cup", value: "Bottled or cup drink product." },
-        { label: "Snack Kering", value: "Packaged dry snack." },
-        { label: "Dessert Mini", value: "Small dessert or sweet treat." }
-      ],
-      digital: [
-        { label: "E-course / Kelas Online", value: "Online course product (e-course)." },
-        { label: "Preset / Filter", value: "Photo or video preset pack." },
-        { label: "Template Canva / Desain", value: "Design template product." }
-      ],
-      kawaii: [
-        { label: "Boneka Mini / Plushie", value: "Mini plushie toy." },
-        { label: "Figure Imut", value: "Small cute figure or figurine." },
-        { label: "Dekorasi Meja Imut", value: "Cute desk decoration item." }
-      ]
-    };
-
-    function populateDetailOptions() {
-      const kategori = kategoriSelect.value;
-      detailSelect.innerHTML = "";
-
-      const placeholder = document.createElement("option");
-      if (kategori && detailOptions[kategori]) {
-        placeholder.value = "";
-        placeholder.textContent = "— Pilih detail produk —";
-      } else {
-        placeholder.value = "";
-        placeholder.textContent = "Tidak ada list khusus, bisa pakai manual di bawah";
-      }
-      detailSelect.appendChild(placeholder);
-
-      const manualOpt = document.createElement("option");
-      manualOpt.value = "__manual__";
-      manualOpt.textContent = "✏️ Tulis manual (detail produk sendiri)";
-      detailSelect.appendChild(manualOpt);
-
-      if (kategori && detailOptions[kategori]) {
-        detailOptions[kategori].forEach(item => {
-          const opt = document.createElement("option");
-          opt.value = item.value;
-          opt.textContent = item.label;
-          detailSelect.appendChild(opt);
-        });
-      }
-    }
-
-    kategoriSelect.addEventListener("change", populateDetailOptions);
-
-    function setupManualToggle(selectEl, manualEl) {
-      selectEl.addEventListener("change", () => {
-        if (selectEl.value === "__manual__") {
-          manualEl.style.display = "block";
-        } else {
-          manualEl.style.display = "none";
-          manualEl.value = "";
-        }
-      });
-    }
-
-    setupManualToggle(kategoriSelect, kategoriManualInput);
-    setupManualToggle(detailSelect, detailManualInput);
-    setupManualToggle(formatSelect, formatManualInput);
-    setupManualToggle(aksiSelect, aksiManualInput);
-    setupManualToggle(warnaSelect, warnaManualInput);
-
-    populateDetailOptions();
-
-    function buildGeminiPrompt(kategoriText, detailText, formatText, aksiText, warnaText) {
-      return (
-`Create a single realistic product photo image with the following specifications. Some descriptions may be written by the user in Indonesian; keep the visual meaning, not the literal words.
-
-Product category:
-${kategoriText || "A simple and aesthetic product photo."}
-
-Specific product type:
-${detailText || "One main product clearly shown as the hero of the image."}
-
-Visual style:
-${formatText || "Minimalist, clean, and professional look suitable for social media content."}
-
-Main subject:
-Show the product clearly as the main focus of the image, based on the category and specific product type above.
-
-Pose / action (may be described by the user in Indonesian if custom):
-${aksiText || "Place or hold the product in a natural, visually appealing way that clearly shows the key details."}
-
-Dominant colors:
-${warnaText || "Use soft, neutral, and eye-friendly colors."}
-
-Technical details:
-- Composition should be minimalist and not crowded.
-- The product must be the main focus; the background is only a subtle support.
-- Use soft natural daylight-style lighting, flattering and not harsh.
-- Image ratio: 9:16 vertical (optimized for Reels / Shorts / TikTok).
-- High resolution, sharp, clean image with realistic texture and no visible noise.
-
-Extra instructions:
-- Avoid overusing filters or effects; keep the image looking natural and believable.
-- Make sure the final image looks clear and attractive on a small mobile phone screen.
-- If needed, slightly enhance contrast and brightness so the product stands out without looking fake.`
-      );
-    }
-
-    generateBtn.addEventListener("click", () => {
-      const kategoriKey = kategoriSelect.value;
-      let kategoriText;
-      if (kategoriKey === "__manual__") {
-        kategoriText = (kategoriManualInput.value || "").trim();
-      } else {
-        kategoriText = kategoriMap[kategoriKey] || "";
-      }
-
-      let detailText;
-      if (detailSelect.value === "__manual__") {
-        detailText = (detailManualInput.value || "").trim();
-      } else {
-        detailText = (detailSelect.value || "").trim();
-      }
-
-      const formatText =
-        formatSelect.value === "__manual__"
-          ? (formatManualInput.value || "").trim()
-          : (formatSelect.value || "").trim();
-
-      const aksiText =
-        aksiSelect.value === "__manual__"
-          ? (aksiManualInput.value || "").trim()
-          : (aksiSelect.value || "").trim();
-
-      const warnaText =
-        warnaSelect.value === "__manual__"
-          ? (warnaManualInput.value || "").trim()
-          : (warnaSelect.value || "").trim();
-
-      geminiOutput.value = buildGeminiPrompt(
-        kategoriText,
-        detailText,
-        formatText,
-        aksiText,
-        warnaText
-      );
-    });
-
-    resetBtn.addEventListener("click", () => {
-      kategoriSelect.value = "";
-      formatSelect.value = "";
-      aksiSelect.value = "";
-      warnaSelect.value = "";
-
-      kategoriManualInput.value = "";
-      detailManualInput.value = "";
-      formatManualInput.value = "";
-      aksiManualInput.value = "";
-      warnaManualInput.value = "";
-
-      kategoriManualInput.style.display = "none";
-      detailManualInput.style.display = "none";
-      formatManualInput.style.display = "none";
-      aksiManualInput.style.display = "none";
-      warnaManualInput.style.display = "none";
-
-      geminiOutput.value = "";
-
-      imageInput.value = "";
-      imagePreview.style.display = "none";
-      previewImg.src = "";
-
-      populateDetailOptions();
-    });
-
-    copyBtn.addEventListener("click", () => {
-      if (!geminiOutput.value.trim()) return;
-      geminiOutput.select();
-      geminiOutput.setSelectionRange(0, 99999);
-      try {
-        document.execCommand("copy");
-        const prev = copyBtn.textContent;
-        copyBtn.textContent = "✅ Copied";
-        setTimeout(() => {
-          copyBtn.textContent = "📋 Copy Prompt";
-        }, 1300);
-      } catch (e) {
-        alert("Gagal menyalin, silakan salin manual.");
-      }
-    });
-  </script>
-</body>
-</html>
+    </div>
+  );
+}

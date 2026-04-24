@@ -1,5 +1,5 @@
 // GANTI URL DI BAWAH INI DENGAN LINK CSV DARI GOOGLE SHEETS ANDA
-const sheetURL = "https://docs.google.com/spreadsheets/d/1187NrrehIRJEh38Uw5pE-r4WVqqEESnW0vlXV7QmjNM/edit?usp=sharing";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSI_5dVogArMM6hfMUrTpsXCVj-7rGmD2aqklSRufNHUHN_JzOYOgZ2Qz1TZszE7kH9XTaSa1kOv6N2/pub?output=csv";
 
 let jemaatData = [];
 

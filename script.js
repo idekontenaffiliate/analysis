@@ -109,17 +109,38 @@ function showJemaatDetail(orang, fotoURL) {
 // --- DATA KEGIATAN (Bisa diatur di sini) ---
 const kegiatanData = [
     {
-        nama: "Ibadah Minggu Raya",
+        nama: "SPR Siang",
         gambar: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
         tujuan: "Berkumpul bersama untuk memuji Tuhan, mendengarkan Firman, dan mempererat persekutuan seluruh jemaat dari berbagai usia.",
-        pic_nama: "Pdt. Andreas",
+        pic_nama: "Gembala Distrik dan Penatua",
+        pic_foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=andreas"
+    },
+    {
+        nama: "SPR Pagi",
+        gambar: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+        tujuan: "Berkumpul bersama untuk memuji Tuhan, mendengarkan Firman, dan mempererat persekutuan seluruh jemaat dari berbagai usia.",
+        pic_nama: "Gembala Distrik",
+        pic_foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=andreas"
+    },
+    {
+        nama: "Sidang Anak",
+        gambar: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+        tujuan: "Usia 6-12 Tahun.",
+        pic_nama: "Gembala Anak-anak",
+        pic_foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=andreas"
+    },
+    {
+        nama: "Sidang Remaja",
+        gambar: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+        tujuan: "Usia 13-18 Tahun.",
+        pic_nama: "Gembala Remaja",
         pic_foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=andreas"
     },
     {
         nama: "Persekutuan Pemuda",
         gambar: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
         tujuan: "Membekali generasi muda dengan nilai-nilai Kristiani dalam menghadapi tantangan dunia modern.",
-        pic_nama: "Sdr. Budi",
+        pic_nama: "Gembala Pemuda",
         pic_foto: "https://api.dicebear.com/7.x/avataaars/svg?seed=budi"
     }
 ];

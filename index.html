@@ -2,55 +2,43 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi Jemaat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Portal Efata Terpadu</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <header>
-        <h1>Direktori Jemaat & Kegiatan</h1>
-        <nav>
-            <button onclick="showSection('jemaat')" class="active" id="btn-jemaat">Data Jemaat</button>
-            <button onclick="showSection('kegiatan')" id="btn-kegiatan">Kegiatan Ibadah</button>
-        </nav>
-    </header>
+<body class="light-mode">
 
-    <main>
-        <section id="jemaat-section">
-            <div class="filter-bar">
-                <input type="text" id="searchInput" placeholder="Cari nama jemaat..." onkeyup="filterJemaat()">
-                <select id="kategoriFilter" onchange="filterJemaat()">
-                    <option value="Semua">Semua Kategori</option>
-                    <option value="Kaum Saleh">Kaum Saleh</option>
-                    <option value="Pemuda">Pemuda</option>
-                    <option value="Remaja">Remaja</option>
-                    <option value="Anak">Anak-anak</option>
-                </select>
-            </div>
-            <div id="jemaat-grid" class="grid-container">
-                <div class="loading">Memuat data dari Google Sheets...</div>
-            </div>
-        </section>
-
-        <section id="kegiatan-section" style="display: none;">
-            <div id="kegiatan-grid" class="grid-container">
-                </div>
-        </section>
-    </main>
-
-    <div id="jemaatModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('jemaatModal')">&times;</span>
-            <div id="modal-jemaat-body"></div>
+    <div id="login-view" class="view active">
+        <div class="login-card">
+            <h2><i class="fas fa-church"></i> Portal Efata</h2>
+            <input type="text" id="login-user" placeholder="Username">
+            <input type="password" id="login-pass" placeholder="Password">
+            <button onclick="app.login()" class="btn-primary">Masuk</button>
+            <p id="login-error" class="text-error"></p>
         </div>
     </div>
 
-    <div id="kegiatanModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal('kegiatanModal')">&times;</span>
-            <div id="modal-kegiatan-body"></div>
-        </div>
+    <div id="app-view" class="view">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-brand">Efata App</div>
+            <ul id="menu-list"></ul>
+        </aside>
+
+        <main class="main-layout">
+            <header class="topbar">
+                <button onclick="app.toggleSidebar()" class="icon-btn"><i class="fas fa-bars"></i></button>
+                <div class="topbar-actions">
+                    <button onclick="app.changeFontSize(-2)" class="icon-btn" title="Perkecil Huruf">A-</button>
+                    <button onclick="app.changeFontSize(2)" class="icon-btn" title="Perbesar Huruf">A+</button>
+                    <button onclick="app.toggleTheme()" class="icon-btn" id="theme-toggle"><i class="fas fa-moon"></i></button>
+                    <button onclick="app.logout()" class="icon-btn text-error"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </header>
+            
+            <div id="content-area" class="content-container"></div>
+        </main>
     </div>
 
     <script src="script.js"></script>
